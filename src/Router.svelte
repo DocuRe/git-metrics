@@ -8,7 +8,7 @@
   let organization;
   let repository;
 
-  $: [organization, repository] = orgrepo.split('/');
+  $: [organization, repository] = orgrepo.split("/");
 
   function setView(v) {
     view = v;
@@ -16,8 +16,8 @@
 </script>
 
 <nav>
-  <button on:click={() => setView('flare')}>Flare Graph</button>
   <button on:click={() => setView('issue')}>Issue Age</button>
+  <button on:click={() => setView('flare')}>Flare Graph</button>
   <button on:click={() => setView('leaderboard')}>PR Leaderboard</button>
 </nav>
 
@@ -27,10 +27,10 @@
   {/each}
 </select>
 
-{#if view === 'flare'}
-  <Flare {organization} {repository} />
-{:else if view === 'issue'}
+{#if view === 'issue'}
   <IssueAge {organization} {repository} />
-{:else if view === 'leaderboard'}
+{:else if view === 'flare'}
+  <Flare {organization} {repository} />
+  <!-- {:else if view === 'leaderboard'} -->
   <!-- <Leaderboard  {organization} {repository} /> -->
 {:else}Unknown view{/if}
