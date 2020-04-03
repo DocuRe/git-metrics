@@ -1,5 +1,5 @@
 {
-	"respositories": [
+	"repositories": [
 		"kubeflow/kubeflow",
 		"kubeflow/manifest",
 		"kubeflow/kfctl"
