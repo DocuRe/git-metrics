@@ -1,0 +1,8 @@
+{
+	"respositories": [
+		"kubeflow/kubeflow",
+		"kubeflow/manifest",
+		"kubeflow/kfctl"
+	],
+	"githubToken": "INSERT_TOKEN_HERE"
+}
