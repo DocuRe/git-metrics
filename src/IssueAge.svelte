@@ -12,7 +12,8 @@
   let maxAge = 0;
   let labelAverageAges;
   let totalCount;
-  let cursor;
+  let endCursor;
+  let hasNextPage = true;
 
   $: loadIssues(organization, repository);
 
@@ -20,7 +21,7 @@
     if (!organization || !repository) {
       return;
     }
-
+// console.log(RECENT_ISSUES({ organization, repository })) HOW CAN I GET THIS TO PRINT AS A STRING??
     query(client, {
       query: RECENT_ISSUES({ organization, repository })
     })
@@ -28,8 +29,10 @@
       .then(result => {
         const issues = result.data.organization.repository.issues.edges;
         totalCount = result.data.organization.repository.issues.totalCount
-        cursor = result.data.organization.repository.issues.pageInfo.endCursor
-        console.log(cursor)
+        endCursor = result.data.organization.repository.issues.pageInfo.endCursor
+        hasNextPage = result.data.organization.repository.issues.pageInfo.hasNextPage
+        console.log(endCursor)
+        console.log(hasNextPage)
         const labelAges = {};
         const now = Date.now();
 

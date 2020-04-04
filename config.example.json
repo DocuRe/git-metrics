@@ -1,8 +1,12 @@
 {
-	"respositories": [
+	"repositories": [
+		"kubeflow/kfctl",
+		"kubeflow/kfp-tekton",
+		"kubeflow/kfserving",
 		"kubeflow/kubeflow",
-		"kubeflow/manifest",
-		"kubeflow/kfctl"
+		"kubeflow/manifests",
+		"kubeflow/mpi-operator",
+		"kubeflow/testing"
 	],
 	"githubToken": "INSERT_TOKEN_HERE"
 }
