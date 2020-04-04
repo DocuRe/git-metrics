@@ -19,14 +19,48 @@ export const RECENT_ISSUES = ({ organization, repository }) => gql`
 			url
 			repository(name: "${repository}") {
 				name
-				issues(last: 100, states: [OPEN]) {
+				issues(last: 100, states: [OPEN], orderBy: {field: CREATED_AT, direction: ASC}) {
+					pageInfo{
+						endCursor
+						hasNextPage
+					}
 					totalCount
 					edges {
 						node {
 							id
-							title
 							createdAt
-							labels(last: 10) {
+							labels(last: 100) {
+								nodes {
+									name
+									color
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+`;
+
+export const RECENT_ISSUES_AFTER = ({ organization, repository }) => gql`
+	{
+		organization(login: "${organization}") {
+			name
+			url
+			repository(name: "${repository}") {
+				name
+				issues(last: 100, after: "${cursor}" states: [OPEN], orderBy: {field: CREATED_AT, direction: ASC}) {
+					pageInfo{
+						endCursor
+						hasNextPage
+					}
+					totalCount
+					edges {
+						node {
+							id
+							createdAt
+							labels(last: 100) {
 								nodes {
 									name
 									color

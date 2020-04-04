@@ -11,6 +11,8 @@
 
   let maxAge = 0;
   let labelAverageAges;
+  let totalCount;
+  let cursor;
 
   $: loadIssues(organization, repository);
 
@@ -25,7 +27,9 @@
       .result()
       .then(result => {
         const issues = result.data.organization.repository.issues.edges;
-
+        totalCount = result.data.organization.repository.issues.totalCount
+        cursor = result.data.organization.repository.issues.pageInfo.endCursor
+        console.log(cursor)
         const labelAges = {};
         const now = Date.now();
 
@@ -52,6 +56,7 @@
         labelAverageAges = Object.keys(labelAges)
           .map(label => {
             const ages = labelAges[label];
+            const count = labelAges[label].length;
             const DAY_IN_MS = 1000 * 60 * 60 * 24;
             const sum = ages.reduce((total, value) => total + value, 0);
             const age = Math.round((10 * sum) / ages.length / DAY_IN_MS) / 10;
@@ -62,7 +67,8 @@
 
             return {
               label,
-              age
+              age,
+              count
             };
           })
           .sort((a, b) => {
@@ -112,6 +118,7 @@
 </style>
 
 {#if labelAverageAges}
+<p style="font-size: 8pt">This reporitory has a total of {totalCount} issues</p>
   <table>
     <thead>
       <tr>
@@ -128,15 +135,15 @@
       </tr>
     </thead>
     <tbody>
-      {#each labelAverageAges as { label, age }}
+      {#each labelAverageAges as { label, age, count }}
         <tr>
           <th>{label}</th>
-          <td>
+          <td style="font-size: 8pt">
             <span
-              class="bar"
+              class="bar" 
               style="width: {(90 * age) / maxAge}%; background-color: #{colors[label]}"
-              title="{age} days" />
-            {age}
+              title="{count} issues" ></span>
+            {age} days / {count} issue(s)
           </td>
         </tr>
       {/each}
