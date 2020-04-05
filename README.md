@@ -1,5 +1,10 @@
 # git-metrics
 
+The idea behind this application is to provide reporting on github projects.  
+This project using the Graphql to pull data and Pancake/D3js to render reports.  
+
+Pull Requests are welcomed.
+
 # svelte app
 
 This project was created from the template for [Svelte](https://svelte.dev) apps. It lives at https://github.com/sveltejs/template.
