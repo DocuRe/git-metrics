@@ -1,40 +1,48 @@
-*Looking for a shareable component template? Go here --> [sveltejs/component-template](https://github.com/sveltejs/component-template)*
-
----
+# git-metrics
 
 # svelte app
 
-This is a project template for [Svelte](https://svelte.dev) apps. It lives at https://github.com/sveltejs/template.
+This project was created from the template for [Svelte](https://svelte.dev) apps. It lives at https://github.com/sveltejs/template.
 
-To create a new project based on this template using [degit](https://github.com/Rich-Harris/degit):
+*Note that you will need to have [Node.js](https://nodejs.org) v12.6.0 installed.*
+
+## Getting started
+
+Clone this repsitory 
 
 ```bash
-npx degit sveltejs/template svelte-app
-cd svelte-app
+git clone git@github.com:DocuRe/git-metrics.git
 ```
-
-*Note that you will need to have [Node.js](https://nodejs.org) installed.*
-
-
-## Get started
 
 Install the dependencies...
 
 ```bash
-cd svelte-app
+cd git-metrics
 npm install
 ```
 
-...then start [Rollup](https://rollupjs.org):
+Copy and edit config.example.json
+
+```bash
+cp config.example.json config.json
+```
+
+Edit `config.json` and replace INSERT_TOKEN_HERE with your GITHUB_TOKEN [reference](https://github.com/settings/tokens/new)
+
+Now start [Rollup](https://rollupjs.org):
 
 ```bash
 npm run dev
 ```
 
-Navigate to [localhost:5000](http://localhost:5000). You should see your app running. Edit a component file in `src`, save it, and reload the page to see your changes.
+You should see an output similar to this;
 
-By default, the server will only respond to requests from localhost. To allow connections from other computers, edit the `sirv` commands in package.json to include the option `--host 0.0.0.0`.
+```
+  Your application is ready~! 🚀
 
+  - Local:      http://0.0.0.0:5000
+  - Network:    http://192.168.1.73:5000
+```
 
 ## Building and running in production mode
 
@@ -43,9 +51,6 @@ To create an optimised version of the app:
 ```bash
 npm run build
 ```
-
-You can run the newly built app with `npm run start`. This uses [sirv](https://github.com/lukeed/sirv), which is included in your package.json's `dependencies` so that the app will work when you deploy to platforms like [Heroku](https://heroku.com).
-
 
 ## Single-page app mode
 
