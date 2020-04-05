@@ -1,7 +1,7 @@
 # git-metrics
 
 The idea behind this application is to provide reporting on github projects.  
-This project using the Graphql to pull data and Pancake/D3js to render reports.  
+This project uses Graphql to pull data and Pancake/D3js to render reports.  
 
 Pull Requests are welcomed.
 
