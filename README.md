@@ -1,7 +1,7 @@
 # git-metrics
 
 The idea behind this application is to provide reporting on github projects.  
-This project uses [Apollo Graphql](https://www.apollographql.com/) to pull data and [Pancake](https://dev.to/richharris/a-new-technique-for-making-responsive-javascript-free-charts-gmp)/[D3js](https://d3js.org/) to render reports.  
+This project uses [Apollo Graphql](https://www.apollographql.com/) via [svelte-apollo](https://github.com/timhall/svelte-apollo) to pull data and [Pancake](https://dev.to/richharris/a-new-technique-for-making-responsive-javascript-free-charts-gmp)/[D3js](https://d3js.org/) to render reports.  
 
 Pull Requests are welcomed.
 
