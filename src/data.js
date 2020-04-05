@@ -12,6 +12,37 @@ export const client = new ApolloClient({
 	},
 });
 
+export const RECENT_ISSUES_new = ({ organization, repository}) => gql`
+{
+	organization(login: "${organization}") {
+	  name
+	  url
+	  repository(name: "${repository}") {
+		name
+		issues(first: 100,  states: [OPEN], orderBy: {field: CREATED_AT, direction: ASC}) {
+		  pageInfo {
+			endCursor
+			hasNextPage
+		  }
+		  totalCount
+		  edges {
+			node {
+			  id
+			  createdAt
+			  labels(last: 100) {
+				nodes {
+				  name
+				  color
+				}
+			  }
+			}
+		  }
+		}
+	  }
+	}
+  }
+`;
+
 export const RECENT_ISSUES = ({ organization, repository }) => gql`
 	{
 		organization(login: "${organization}") {
@@ -20,7 +51,7 @@ export const RECENT_ISSUES = ({ organization, repository }) => gql`
 			repository(name: "${repository}") {
 				name
 				issues(last: 100, states: [OPEN], orderBy: {field: CREATED_AT, direction: ASC}) {
-					pageInfo{
+					pageInfo {
 						endCursor
 						hasNextPage
 					}

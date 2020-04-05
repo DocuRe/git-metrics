@@ -31,8 +31,10 @@
         totalCount = result.data.organization.repository.issues.totalCount
         endCursor = result.data.organization.repository.issues.pageInfo.endCursor
         hasNextPage = result.data.organization.repository.issues.pageInfo.hasNextPage
+
         console.log(endCursor)
         console.log(hasNextPage)
+        
         const labelAges = {};
         const now = Date.now();
 
@@ -140,7 +142,7 @@
     <tbody>
       {#each labelAverageAges as { label, age, count }}
         <tr>
-          <th>{label}</th>
+          <th style="font-size: 9pt">{label}</th>
           <td style="font-size: 8pt">
             <span
               class="bar" 
