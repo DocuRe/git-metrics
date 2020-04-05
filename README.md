@@ -32,7 +32,7 @@ Copy and edit config.example.json
 cp config.example.json config.json
 ```
 
-Edit `config.json` and replace INSERT_TOKEN_HERE with your Github token [reference](https://github.com/settings/tokens/new)
+Edit `config.json` and replace INSERT_TOKEN_HERE with your Github token ([reference](https://github.com/settings/tokens/new))
 
 Now start [Rollup](https://rollupjs.org):
 
