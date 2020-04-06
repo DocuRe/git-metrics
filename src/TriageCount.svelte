@@ -8,14 +8,18 @@
   const colors = {};
 
   let maxAge = 0;
+  let totalCount = 0;
   let labelAverageAges;
-  let totalCount;
   let endCursor;
   let hasNextPage = true;
 
   $: loadIssues(organization);
 
   async function loadIssues(organization) {
+    // reset
+    maxAge = 0;
+    totalCount = 0;
+
     const projectColumns = await getTriageProjectIssues(organization);
     const labelAges = {};
     const now = Date.now();
@@ -24,8 +28,9 @@
       //this loops over the columns returned
       const column = projectColumns[i];
       const colName = column.name;
-      const totalCards = column.cards.totalCount;
       const issues = column.cards.nodes;
+
+      totalCount += column.cards.totalCount;
 
       for (let k = 0; k < issues.length; k++) {
         //this loops over the cards returned, each card is an issue
@@ -57,8 +62,6 @@
         }
       }
     }
-
-    maxAge = 0;
 
     labelAverageAges = Object.keys(labelAges)
       .map(label => {
