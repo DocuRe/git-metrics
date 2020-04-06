@@ -2,104 +2,62 @@
   import * as Pancake from "@sveltejs/pancake";
   import Router from "./Router.svelte";
   import { getTriageProjectIssues } from "./data.js";
+  import config from '../config.json';
 
-  export let organization;
+  const organization = config.repositories[0].split('/')[0];
 
   const colors = {};
 
-  let maxAge = 0;
+  let maxCount = 0;
   let totalCount = 0;
-  let labelAverageAges;
-  let endCursor;
-  let hasNextPage = true;
+  let columns;
 
   $: loadIssues(organization);
 
   async function loadIssues(organization) {
-    // reset
-    maxAge = 0;
+    const projectColumns = await getTriageProjectIssues(organization);
+
+    maxCount = 0;
     totalCount = 0;
 
-    const projectColumns = await getTriageProjectIssues(organization);
-    const labelAges = {};
-    const now = Date.now();
+    columns = projectColumns.map(({ name, cards }) => {
+      const issues = cards.nodes;
+      const groups = {};
 
-    for (let i = 0; i < projectColumns.length; i++) {
-      //this loops over the columns returned
-      const column = projectColumns[i];
-      const colName = column.name;
-      const issues = column.cards.nodes;
-
-      totalCount += column.cards.totalCount;
+      totalCount += cards.totalCount;
 
       for (let k = 0; k < issues.length; k++) {
         //this loops over the cards returned, each card is an issue
-        const issue = issues[k];
-        if (colName === "To Do") {
-          // group by issue.content.repository.nameWithOwner
-          // group by issue.content.labels.nodes.name where name starts with area/
-          // count the number of issues
-          // create a bar graph that shows the count by area/...
-        } else if (colName === "Assigned to Area Owner For Triage") {
-          // group by issue.content.repository.nameWithOwner
-          // group by issue.content.labels.nodes.name where name starts with area/
-          // count the number of issues
-          // create a bar graph that shows the count by area/...
-        }
-        const { labels, createdAt } = issue.content;
-        const age = now - new Date(createdAt).getTime();
+        const { labels } = issues[k].content;
 
         if (labels.nodes.length === 0) {
-          addLabelAge("Unlabelled", age);
+          const key = `Unlabelled`;
+          groups[key] = (groups[key] || 0) + 1;
         } else {
           for (let j = 0; j < labels.nodes.length; j++) {
             const { name, color } = labels.nodes[j];
-
-            addLabelAge(name, age);
-
+            groups[name] = (groups[name] || 0) + 1;
             colors[name] = color;
           }
         }
       }
-    }
 
-    labelAverageAges = Object.keys(labelAges)
-      .map(label => {
-        const ages = labelAges[label];
-        const count = labelAges[label].length;
-        const DAY_IN_MS = 1000 * 60 * 60 * 24;
-        const sum = ages.reduce((total, value) => total + value, 0);
-        const age = Math.round((10 * sum) / ages.length / DAY_IN_MS) / 10;
+      const counts = Object.keys(groups)
+        .map(label => {
+          const count = groups[label];
 
-        if (age > maxAge) {
-          maxAge = age;
-        }
+          if (count > maxCount) {
+            maxCount = count;
+          }
 
-        return {
-          label,
-          age,
-          count
-        };
-      })
-      .sort((a, b) => {
-        if (labelCategory(a.label) !== labelCategory(b.label)) {
-          return a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1;
-        }
+          return { label, count };
+        })
+        .sort((a, b) => {
+          return b.count - a.count;
+        });
 
-        return b.age - a.age;
-      });
-
-    function labelCategory(label) {
-      return label.split("/")[0];
-    }
-
-    function addLabelAge(name, age) {
-      if (!(name in labelAges)) {
-        labelAges[name] = [];
-      }
-
-      labelAges[name].push(age);
-    }
+      return { maxCount, counts };
+    });
   }
 </script>
 
@@ -116,48 +74,58 @@
 
   td {
     width: 80vw;
-    min-width: 400px;
+    min-width: 200px;
+    white-space: nowrap;
   }
 
   .label {
     white-space: nowrap;
   }
+
+  .flex {
+    display: flex;
+  }
 </style>
 
-{#if labelAverageAges}
+{#if columns}
   <p style="font-size: 8pt">
-    This reporitory has a total of {totalCount} issues
+    This organization has a total of {totalCount} issues
   </p>
-  <table>
-    <thead>
-      <tr>
-        <th>Label</th>
-        <th>
-          <div class="axis">
-            <Pancake.Chart x1={0} x2={maxAge / 0.9} y1={0} y2={0}>
-              <Pancake.Grid vertical count={3} let:value>
-                <span class="y label">{value} days</span>
-              </Pancake.Grid>
-            </Pancake.Chart>
-          </div>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each labelAverageAges as { label, age, count }}
-        <tr>
-          <th style="font-size: 9pt">{label}</th>
-          <td style="font-size: 8pt">
-            <span
-              class="bar"
-              style="width: {(90 * age) / maxAge}%; background-color: #{colors[label]}"
-              title="{count} issues" />
-            {age} days / {count} issue(s)
-          </td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
+  <div class="flex">
+    {#each columns as { maxCount, counts }}
+      <table>
+        <thead>
+          <tr>
+            <th>Label</th>
+            <th>
+              <div class="axis">
+                <Pancake.Chart x1={0} x2={maxCount / 0.9} y1={0} y2={0}>
+                  <Pancake.Grid vertical count={3} let:value>
+                    <span class="y label">{value}</span>
+                  </Pancake.Grid>
+                </Pancake.Chart>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each counts as { repository, label, count }}
+            <tr>
+              <th style="font-size: 9pt">{label}</th>
+              <td style="font-size: 8pt">
+                <span
+                  class="bar"
+                  style="width: {(90 * count) / maxCount}%; background-color: #{colors[label]}"
+                  title="{count} issues" />
+                {count}
+                {#if count === 1}issue{:else}issues{/if}
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    {/each}
+  </div>
 {:else}
   <p>Loading...</p>
 {/if}

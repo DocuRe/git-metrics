@@ -13,6 +13,32 @@ export const client = new ApolloClient({
 	},
 });
 
+export async function getIssues(organization, repository) {
+	let result;
+	let cursor;
+
+	while (true) {
+		const { data } = await query(client, {
+			query: RECENT_ISSUES,
+			variables: { organization, repository, cursor },
+		}).result();
+
+		const issues = data.organization.repository.issues;
+
+		if (!result) {
+			result = issues;
+		} else {
+			result.edges = result.edges.concat(issues.edges);
+		}
+
+		if (issues.pageInfo.hasNextPage) {
+			cursor = issues.pageInfo.endCursor;
+		} else {
+			return result;
+		}
+	}
+}
+
 export async function getTriageProjectIssues(organization) {
 	if (!organization) {
 		return;
@@ -96,46 +122,24 @@ export const TRIAG_PROJECT_ISSUES = gql`
 	}
 `;
 
-export const RECENT_ISSUES = ({ organization, repository }) => gql`
-	{
-		organization(login: "${organization}") {
+export const RECENT_ISSUES = gql`
+	query RecentIssues(
+		$organization: String!
+		$repository: String!
+		$cursor: String
+	) {
+		organization(login: $organization) {
 			name
 			url
-			repository(name: "${repository}") {
+			repository(name: $repository) {
 				name
-				issues(last: 100, states: [OPEN], orderBy: {field: CREATED_AT, direction: ASC}) {
+				issues(
+					last: 100
+					after: $cursor
+					states: [OPEN]
+					orderBy: { field: CREATED_AT, direction: ASC }
+				) {
 					pageInfo {
-						endCursor
-						hasNextPage
-					}
-					totalCount
-					edges {
-						node {
-							id
-							createdAt
-							labels(last: 100) {
-								nodes {
-									name
-									color
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-`;
-
-export const RECENT_ISSUES_AFTER = ({ organization, repository }) => gql`
-	{
-		organization(login: "${organization}") {
-			name
-			url
-			repository(name: "${repository}") {
-				name
-				issues(last: 100, after: "${cursor}" states: [OPEN], orderBy: {field: CREATED_AT, direction: ASC}) {
-					pageInfo{
 						endCursor
 						hasNextPage
 					}

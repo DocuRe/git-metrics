@@ -1,11 +1,14 @@
 <script>
   import * as Pancake from "@sveltejs/pancake";
-  import { query } from "svelte-apollo";
   import Router from "./Router.svelte";
-  import { RECENT_ISSUES, client } from "./data.js";
+  import { getIssues } from "./data.js";
+  import config from "../config.json";
+  
+  let orgrepo = config.repositories[0];
+  let organization;
+  let repository;
 
-  export let organization;
-  export let repository;
+  $: [organization, repository] = orgrepo.split("/");
 
   const colors = {};
 
@@ -17,85 +20,76 @@
 
   $: loadIssues(organization, repository);
 
-  function loadIssues(organization, repository) {
+  async function loadIssues(organization, repository) {
     if (!organization || !repository) {
       return;
     }
-// console.log(RECENT_ISSUES({ organization, repository })) HOW CAN I GET THIS TO PRINT AS A STRING??
-    query(client, {
-      query: RECENT_ISSUES({ organization, repository })
-    })
-      .result()
-      .then(result => {
-        const issues = result.data.organization.repository.issues.edges;
-        totalCount = result.data.organization.repository.issues.totalCount
-        endCursor = result.data.organization.repository.issues.pageInfo.endCursor
-        hasNextPage = result.data.organization.repository.issues.pageInfo.hasNextPage
 
-        console.log(endCursor)
-        console.log(hasNextPage)
-        
-        const labelAges = {};
-        const now = Date.now();
+    const result = await getIssues(organization, repository);
+    const issues = result.edges;
+    
+    totalCount = result.totalCount;
 
-        for (let i = 0; i < issues.length; i++) {
-          const issue = issues[i];
-          const { labels, createdAt } = issue.node;
-          const age = now - new Date(createdAt).getTime();
+    const labelAges = {};
+    const now = Date.now();
 
-          if (labels.nodes.length === 0) {
-            addLabelAge("Unlabelled", age);
-          } else {
-            for (let j = 0; j < labels.nodes.length; j++) {
-              const { name, color } = labels.nodes[j];
+    for (let i = 0; i < issues.length; i++) {
+      const issue = issues[i];
+      const { labels, createdAt } = issue.node;
+      const age = now - new Date(createdAt).getTime();
 
-              addLabelAge(name, age);
+      if (labels.nodes.length === 0) {
+        addLabelAge("Unlabelled", age);
+      } else {
+        for (let j = 0; j < labels.nodes.length; j++) {
+          const { name, color } = labels.nodes[j];
 
-              colors[name] = color;
-            }
-          }
+          addLabelAge(name, age);
+
+          colors[name] = color;
+        }
+      }
+    }
+
+    maxAge = 0;
+
+    labelAverageAges = Object.keys(labelAges)
+      .map(label => {
+        const ages = labelAges[label];
+        const count = labelAges[label].length;
+        const DAY_IN_MS = 1000 * 60 * 60 * 24;
+        const sum = ages.reduce((total, value) => total + value, 0);
+        const age = Math.round((10 * sum) / ages.length / DAY_IN_MS) / 10;
+
+        if (age > maxAge) {
+          maxAge = age;
         }
 
-        maxAge = 0;
-
-        labelAverageAges = Object.keys(labelAges)
-          .map(label => {
-            const ages = labelAges[label];
-            const count = labelAges[label].length;
-            const DAY_IN_MS = 1000 * 60 * 60 * 24;
-            const sum = ages.reduce((total, value) => total + value, 0);
-            const age = Math.round((10 * sum) / ages.length / DAY_IN_MS) / 10;
-
-            if (age > maxAge) {
-              maxAge = age;
-            }
-
-            return {
-              label,
-              age,
-              count
-            };
-          })
-          .sort((a, b) => {
-            if (labelCategory(a.label) !== labelCategory(b.label)) {
-              return a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1;
-            }
-
-            return b.age - a.age;
-          });
-
-        function labelCategory(label) {
-          return label.split("/")[0];
+        return {
+          label,
+          age,
+          count
+        };
+      })
+      .sort((a, b) => {
+        if (labelCategory(a.label) !== labelCategory(b.label)) {
+          return a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1;
         }
 
-        function addLabelAge(name, age) {
-          if (!(name in labelAges)) {
-            labelAges[name] = [];
-          }
-
-          labelAges[name].push(age);
-        }
+        return b.age - a.age;
       });
+
+    function labelCategory(label) {
+      return label.split("/")[0];
+    }
+
+    function addLabelAge(name, age) {
+      if (!(name in labelAges)) {
+        labelAges[name] = [];
+      }
+
+      labelAges[name].push(age);
+    }
   }
 
   // $: data.then(d => console.log(d));
@@ -122,8 +116,17 @@
   }
 </style>
 
+
+<select bind:value={orgrepo}>
+  {#each config.repositories as repo}
+    <option value={repo}>{repo}</option>
+  {/each}
+</select>
+
 {#if labelAverageAges}
-<p style="font-size: 8pt">This reporitory has a total of {totalCount} issues</p>
+  <p style="font-size: 8pt">
+    This reporitory has a total of {totalCount} issues
+  </p>
   <table>
     <thead>
       <tr>
@@ -145,9 +148,9 @@
           <th style="font-size: 9pt">{label}</th>
           <td style="font-size: 8pt">
             <span
-              class="bar" 
+              class="bar"
               style="width: {(90 * age) / maxAge}%; background-color: #{colors[label]}"
-              title="{count} issues" ></span>
+              title="{count} issues" />
             {age} days / {count} issue(s)
           </td>
         </tr>
