@@ -1,5 +1,6 @@
 <script>
-  import Flare from "./Flare.svelte";
+  //import Flare from "./Flare.svelte";
+  //import TriageCount from "../TriageCount.svelte"
   import IssueAge from "./IssueAge.svelte";
   import config from "../config.json";
 
@@ -17,8 +18,7 @@
 
 <nav>
   <button on:click={() => setView('issue')}>Issue Age</button>
-  <button on:click={() => setView('flare')}>Flare Graph</button>
-  <button on:click={() => setView('leaderboard')}>PR Leaderboard</button>
+  <button on:click={() => setView('triage')}>Triage Count</button>
 </nav>
 
 <select bind:value={orgrepo}>
@@ -30,7 +30,8 @@
 {#if view === 'issue'}
   <IssueAge {organization} {repository} />
 {:else if view === 'flare'}
-  <Flare {organization} {repository} />
-  <!-- {:else if view === 'leaderboard'} -->
+  <!--  <Flare {organization} {repository} />-->
+{:else if view === 'triage'}
+  <!--  <TriageCount {organization} />-->
   <!-- <Leaderboard  {organization} {repository} /> -->
 {:else}Unknown view{/if}

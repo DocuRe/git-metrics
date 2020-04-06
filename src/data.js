@@ -12,27 +12,76 @@ export const client = new ApolloClient({
 	},
 });
 
-export const RECENT_ISSUES_new = ({ organization, repository}) => gql`
+export const TRIAG_PROJECT_ISSUES = ({ organization}) => gql`
 {
 	organization(login: "${organization}") {
-	  name
-	  url
-	  repository(name: "${repository}") {
-		name
-		issues(first: 100,  states: [OPEN], orderBy: {field: CREATED_AT, direction: ASC}) {
-		  pageInfo {
-			endCursor
-			hasNextPage
+	  project(number: 26) {
+		columns(first: 2) {
+		  nodes {
+			id
+			name
+			cards(first: 100) {
+			  totalCount
+			  pageInfo {
+				endCursor
+				hasNextPage
+			  }
+			  nodes {
+				content {
+				  ... on Issue {
+					repository {
+						nameWithOwner
+					}
+					id
+					state
+					createdAt
+					labels(first: 10) {
+					  nodes {
+						name
+						color
+					  }
+					}
+				  }
+				}
+			  }
+			}
 		  }
-		  totalCount
-		  edges {
-			node {
-			  id
-			  createdAt
-			  labels(last: 100) {
-				nodes {
-				  name
-				  color
+		}
+	  }
+	}
+  }
+`;
+
+export const TRIAG_PROJECT_ISSUES_AFTER = ({ organization, cursor}) => gql`
+{
+	organization(login: "${organization}") {
+	  project(number: 26) {
+		columns(first: 2) {
+		  nodes {
+			id
+			name
+			cards(first: 100, after: "${cursor}") {
+			  totalCount
+			  pageInfo {
+				endCursor
+				hasNextPage
+			  }
+			  nodes {
+				content {
+				  ... on Issue {
+					repository {
+						nameWithOwner
+					}
+					id
+					state
+					createdAt
+					labels(first: 10) {
+					  nodes {
+						name
+						color
+					  }
+					}
+				  }
 				}
 			  }
 			}
