@@ -31,6 +31,9 @@
         const labelAges = {};
         const now = Date.now();
 
+        if (hasNextPage) {
+          // recursively call a function until hasNextPage is false creating a masterResult object
+        }
         for (let i = 0; i < projectColumns.length; i++) { //this loops over the columns returned
           const column = projectColumns[i];
           const colName = column.name;
