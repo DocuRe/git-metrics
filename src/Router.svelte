@@ -1,10 +1,10 @@
 <script>
   //import Flare from "./Flare.svelte";
-  //import TriageCount from "../TriageCount.svelte"
+  import TriageCount from "./TriageCount.svelte"
   import IssueAge from "./IssueAge.svelte";
   import config from "../config.json";
 
-  let view = "issue";
+  let view = "triage";
   let orgrepo = config.repositories[0];
   let organization;
   let repository;
@@ -32,6 +32,6 @@
 {:else if view === 'flare'}
   <!--  <Flare {organization} {repository} />-->
 {:else if view === 'triage'}
-  <!--  <TriageCount {organization} />-->
+  <TriageCount {organization} />
   <!-- <Leaderboard  {organization} {repository} /> -->
 {:else}Unknown view{/if}

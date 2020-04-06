@@ -1,5 +1,6 @@
 import ApolloClient, { gql } from 'apollo-boost';
 import config from '../config.json';
+import { query } from 'svelte-apollo';
 
 export const client = new ApolloClient({
 	uri: 'https://api.github.com/graphql',
@@ -12,84 +13,87 @@ export const client = new ApolloClient({
 	},
 });
 
-export const TRIAG_PROJECT_ISSUES = ({ organization}) => gql`
-{
-	organization(login: "${organization}") {
-	  project(number: 26) {
-		columns(first: 2) {
-		  nodes {
-			id
-			name
-			cards(first: 100) {
-			  totalCount
-			  pageInfo {
-				endCursor
-				hasNextPage
-			  }
-			  nodes {
-				content {
-				  ... on Issue {
-					repository {
-						nameWithOwner
-					}
-					id
-					state
-					createdAt
-					labels(first: 10) {
-					  nodes {
-						name
-						color
-					  }
-					}
-				  }
-				}
-			  }
-			}
-		  }
-		}
-	  }
+export async function getTriageProjectIssues(organization) {
+	if (!organization) {
+		return;
 	}
-  }
-`;
 
-export const TRIAG_PROJECT_ISSUES_AFTER = ({ organization, cursor}) => gql`
-{
-	organization(login: "${organization}") {
-	  project(number: 26) {
-		columns(first: 2) {
-		  nodes {
-			id
-			name
-			cards(first: 100, after: "${cursor}") {
-			  totalCount
-			  pageInfo {
-				endCursor
-				hasNextPage
-			  }
-			  nodes {
-				content {
-				  ... on Issue {
-					repository {
-						nameWithOwner
-					}
-					id
-					state
-					createdAt
-					labels(first: 10) {
-					  nodes {
-						name
-						color
-					  }
-					}
-				  }
-				}
-			  }
+	let columns;
+	let cursor;
+
+	while (true) {
+		const result = await query(client, {
+			query: TRIAG_PROJECT_ISSUES,
+			variables: {
+				organization,
+				cursor,
+			},
+		}).result();
+
+		const nodes = result.data.organization.project.columns.nodes;
+
+		if (!columns) {
+			// first time, just use the columns as is
+			columns = nodes;
+		} else {
+			// subsequent pages, merge the cards in each column
+			for (let i = 0; i < columns.length; i++) {
+				const column = columns[i];
+
+				column.cards.nodes = column.cards.nodes.concat(
+					nodes[i].cards.nodes
+				);
 			}
-		  }
 		}
-	  }
+
+		// the cursor seems to be the same for all columns
+		if (nodes[0].cards.pageInfo.hasNextPage) {
+			cursor = nodes[0].cards.pageInfo.endCursor;
+		} else {
+			// we got to the end, stop here
+			return columns;
+		}
 	}
-  }
+}
+
+export const TRIAG_PROJECT_ISSUES = gql`
+	query TraigeProjectIssues($organization: String!, $cursor: String) {
+		organization(login: $organization) {
+			project(number: 26) {
+				columns(first: 2) {
+					nodes {
+						id
+						name
+						cards(first: 100, after: $cursor) {
+							totalCount
+							pageInfo {
+								endCursor
+								hasNextPage
+							}
+							nodes {
+								content {
+									... on Issue {
+										repository {
+											nameWithOwner
+										}
+										id
+										state
+										createdAt
+										labels(first: 10) {
+											nodes {
+												name
+												color
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 `;
 
 export const RECENT_ISSUES = ({ organization, repository }) => gql`
