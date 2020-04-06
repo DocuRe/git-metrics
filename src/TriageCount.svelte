@@ -25,15 +25,17 @@
         //this loops over the cards returned, each card is an issue
         const { labels } = issues[k].content;
 
-        if (labels.nodes.length === 0) {
-          const key = `Unlabelled`;
+        const areaLabels = labels.nodes.filter(({ name }) =>
+          /^area\//.test(name)
+        );
+
+        if (areaLabels.length === 0) {
+          const key = `Unknown`;
           groups[key] = (groups[key] || 0) + 1;
         } else {
-          for (let j = 0; j < labels.nodes.length; j++) {
-            const { name, color } = labels.nodes[j];
-            groups[name] = (groups[name] || 0) + 1;
-            colors[name] = color;
-          }
+          const { name, color } = areaLabels[0][j];
+          groups[name] = (groups[name] || 0) + 1;
+          colors[name] = color;
         }
       }
 
