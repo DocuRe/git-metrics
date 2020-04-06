@@ -125,7 +125,7 @@
 
 {#if labelAverageAges}
   <p style="font-size: 8pt">
-    This reporitory has a total of {totalCount} issues
+    This repository has a total of {totalCount} issues
   </p>
   <table>
     <thead>
