@@ -33,7 +33,7 @@
           const key = `Unknown`;
           groups[key] = (groups[key] || 0) + 1;
         } else {
-          const { name, color } = areaLabels[0][j];
+          const { name, color } = areaLabels[0];
           groups[name] = (groups[name] || 0) + 1;
           colors[name] = color;
         }
