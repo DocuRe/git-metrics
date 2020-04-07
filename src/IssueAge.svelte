@@ -151,7 +151,7 @@
               class="bar"
               style="width: {(90 * age) / maxAge}%; background-color: #{colors[label]}"
               title="{count} issues" />
-            {age} days / {count} issue(s)
+            {age} days / {count} {#if count === 1}issue{:else}issues{/if}
           </td>
         </tr>
       {/each}
