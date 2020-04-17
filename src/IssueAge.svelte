@@ -1,6 +1,5 @@
 <script>
   import * as Pancake from "@sveltejs/pancake";
-  import Router from "./Router.svelte";
   import { getIssues } from "./data.js";
   import config from "../config.json";
   
