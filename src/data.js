@@ -26,7 +26,7 @@ export async function getIssues(organization, repository) {
 		const issues = data.organization.repository.issues;
 
 		if (!result) {
-			result = issues;
+			result = JSON.parse(JSON.stringify(issues));
 		} else {
 			result.edges = result.edges.concat(issues.edges);
 		}
@@ -60,7 +60,7 @@ export async function getTriageProjectIssues(organization) {
 
 		if (!columns) {
 			// first time, just use the columns as is
-			columns = nodes;
+			columns = JSON.parse(JSON.stringify(nodes));
 		} else {
 			// subsequent pages, merge the cards in each column
 			for (let i = 0; i < columns.length; i++) {
@@ -103,6 +103,8 @@ export const TRIAG_PROJECT_ISSUES = gql`
 											nameWithOwner
 										}
 										id
+										title
+										url
 										state
 										createdAt
 										labels(first: 10) {

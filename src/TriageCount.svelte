@@ -1,5 +1,6 @@
 <script>
   import * as Pancake from "@sveltejs/pancake";
+  import { push } from "svelte-spa-router";
   import { getTriageProjectIssues } from "./data.js";
   import config from "../config.json";
 
@@ -110,13 +111,16 @@
               <tr>
                 <th style="font-size: 9pt">{label}</th>
                 <td style="font-size: 8pt">
-                  <span
-                    class="bar"
-                    style="width: {(90 * count) / maxCount}%; background-color:
-                    #{colors[label]}"
-                    title="{count} issues" />
-                  {count}
-                  {#if count === 1}issue{:else}issues{/if}
+                  <a
+                    href="#/triage-issues/{encodeURIComponent(organization)}/{encodeURIComponent(name)}/{encodeURIComponent(label)}">
+                    <span
+                      class="bar"
+                      style="width: {(90 * count) / maxCount}%;
+                      background-color: #{colors[label]}"
+                      title="{count} issues" />
+                    {count}
+                    {#if count === 1}issue{:else}issues{/if}
+                  </a>
                 </td>
               </tr>
             {/each}

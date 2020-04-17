@@ -2,11 +2,13 @@
   //import Flare from "./Flare.svelte";
   import Router from "svelte-spa-router";
   import TriageCount from "./TriageCount.svelte";
+  import TriageIssues from "./TriageIssues.svelte";
   import IssueAge from "./IssueAge.svelte";
 
   const routes = {
     '/issue': IssueAge,
-    '/triage': TriageCount
+    '/triage': TriageCount,
+    '/triage-issues/:organization/:column/:label' : TriageIssues
   };
 </script>
 
