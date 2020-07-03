@@ -87,7 +87,7 @@
 
 <style>
   .chart {
-    height: 100%;
+    height: 600px;
     padding: 3em 2em 2em 3em;
     box-sizing: border-box;
   }
@@ -172,7 +172,7 @@
         <div class="axes" />
       </Pancake.Box>
 
-      <Pancake.Grid vertical count={10} let:value>
+      <Pancake.Grid vertical let:value>
         <div class="grid-line vertical" />
         <span class="x label">{new Date(value).toLocaleDateString()}</span>
       </Pancake.Grid>
