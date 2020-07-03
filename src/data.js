@@ -13,13 +13,39 @@ export const client = new ApolloClient({
 	},
 });
 
+export async function getOpenIssues(organization, repository) {
+	let result;
+	let cursor;
+
+	while (true) {
+		const { data } = await query(client, {
+			query: OPEN_ISSUES,
+			variables: { organization, repository, cursor },
+		}).result();
+
+		const issues = data.organization.repository.issues;
+
+		if (!result) {
+			result = JSON.parse(JSON.stringify(issues));
+		} else {
+			result.edges = result.edges.concat(issues.edges);
+		}
+
+		if (issues.pageInfo.hasNextPage) {
+			cursor = issues.pageInfo.endCursor;
+		} else {
+			return result;
+		}
+	}
+}
+
 export async function getIssues(organization, repository) {
 	let result;
 	let cursor;
 
 	while (true) {
 		const { data } = await query(client, {
-			query: RECENT_ISSUES,
+			query: ISSUES,
 			variables: { organization, repository, cursor },
 		}).result();
 
@@ -82,8 +108,34 @@ export async function getTriageProjectIssues(organization) {
 	}
 }
 
+export async function getReleases(organization, repository) {
+	let result;
+	let cursor;
+
+	while (true) {
+		const { data } = await query(client, {
+			query: RELEASES,
+			variables: { organization, repository, cursor },
+		}).result();
+
+		const releases = data.organization.repository.releases;
+
+		if (!result) {
+			result = JSON.parse(JSON.stringify(releases));
+		} else {
+			result.nodes = result.nodes.concat(releases.nodes);
+		}
+
+		if (releases.pageInfo.hasNextPage) {
+			cursor = releases.pageInfo.endCursor;
+		} else {
+			return result;
+		}
+	}
+}
+
 export const TRIAG_PROJECT_ISSUES = gql`
-	query TraigeProjectIssues($organization: String!, $cursor: String) {
+	query TriageProjectIssues($organization: String!, $cursor: String) {
 		organization(login: $organization) {
 			project(number: 26) {
 				columns(first: 2) {
@@ -107,6 +159,7 @@ export const TRIAG_PROJECT_ISSUES = gql`
 										url
 										state
 										createdAt
+										closedAt
 										labels(first: 10) {
 											nodes {
 												name
@@ -124,8 +177,8 @@ export const TRIAG_PROJECT_ISSUES = gql`
 	}
 `;
 
-export const RECENT_ISSUES = gql`
-	query RecentIssues(
+export const OPEN_ISSUES = gql`
+	query OpenIssues(
 		$organization: String!
 		$repository: String!
 		$cursor: String
@@ -136,10 +189,10 @@ export const RECENT_ISSUES = gql`
 			repository(name: $repository) {
 				name
 				issues(
-					last: 100
+					first: 100
 					after: $cursor
 					states: [OPEN]
-					orderBy: { field: CREATED_AT, direction: ASC }
+					orderBy: { field: CREATED_AT, direction: DESC }
 				) {
 					pageInfo {
 						endCursor
@@ -157,6 +210,63 @@ export const RECENT_ISSUES = gql`
 								}
 							}
 						}
+					}
+				}
+			}
+		}
+	}
+`;
+
+export const ISSUES = gql`
+	query Issues(
+		$organization: String!
+		$repository: String!
+		$cursor: String
+	) {
+		organization(login: $organization) {
+			name
+			url
+			repository(name: $repository) {
+				name
+				issues(
+					first: 100
+					after: $cursor
+					orderBy: { field: CREATED_AT, direction: ASC }
+				) {
+					pageInfo {
+						endCursor
+						hasNextPage
+					}
+					totalCount
+					edges {
+						node {
+							id
+							createdAt
+							closedAt
+						}
+					}
+				}
+			}
+		}
+	}
+`;
+
+export const RELEASES = gql`
+	query Releases($organization: String!, $repository: String!, $cursor: String) {
+		organization(login: $organization) {
+			name
+			url
+			repository(name: $repository) {
+				name
+				releases(first: 100, after: $cursor) {
+					pageInfo {
+						endCursor
+						hasNextPage
+					}
+					totalCount
+					nodes {
+						name
+						publishedAt
 					}
 				}
 			}

@@ -1,6 +1,6 @@
 <script>
   import * as Pancake from "@sveltejs/pancake";
-  import { getIssues } from "./data.js";
+  import { getOpenIssues } from "./data.js";
   import config from "../config.json";
   
   let orgrepo = config.repositories[0];
@@ -24,7 +24,8 @@
       return;
     }
 
-    const result = await getIssues(organization, repository);
+    const result = await getOpenIssues(organization, repository);
+    console.log(result);
     const issues = result.edges;
     
     totalCount = result.totalCount;
