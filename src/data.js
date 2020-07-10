@@ -243,6 +243,12 @@ export const ISSUES = gql`
 							id
 							createdAt
 							closedAt
+							labels(last: 100) {
+								nodes {
+									name
+									color
+								}
+							}
 						}
 					}
 				}
@@ -252,7 +258,11 @@ export const ISSUES = gql`
 `;
 
 export const RELEASES = gql`
-	query Releases($organization: String!, $repository: String!, $cursor: String) {
+	query Releases(
+		$organization: String!
+		$repository: String!
+		$cursor: String
+	) {
 		organization(login: $organization) {
 			name
 			url
