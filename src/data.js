@@ -1,6 +1,7 @@
 import ApolloClient, { gql } from 'apollo-boost';
-import config from '../config.json';
 import { query } from 'svelte-apollo';
+
+const config = window.config;
 
 export const client = new ApolloClient({
 	uri: 'https://api.github.com/graphql',
