@@ -257,20 +257,6 @@
 					<Pancake.SvgScatterplot data={releases} let:d>
 						<path class="release" {d} />
 					</Pancake.SvgScatterplot>
-
-					<Pancake.Quadtree
-						data={releases}
-						x={(d) => d.x}
-						y={(d) => d.y}
-						let:closest>
-						{#if closest}
-							<Pancake.SvgPoint x={closest.x} y={closest.y} let:d>
-								<path class="highlight" {d}>
-									<title>{closest.title}</title>
-								</path>
-							</Pancake.SvgPoint>
-						{/if}
-					</Pancake.Quadtree>
 				{/if}
 			</Pancake.Svg>
 
