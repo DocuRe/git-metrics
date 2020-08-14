@@ -26,7 +26,7 @@
 		}
 
 		const result = await getOpenIssues(organization, repository);
-		console.log(result);
+
 		const issues = result.edges;
 
 		totalCount = result.totalCount;

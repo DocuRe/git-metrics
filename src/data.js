@@ -661,3 +661,23 @@ export const flareData = {
 		},
 	],
 };
+
+export async function getOwnerFiles(organization, page = 1) {
+	const res = await fetch(
+		`https://api.github.com/search/code?q=in%3Apath+OWNERS+org:${encodeURIComponent(organization)}&per_page=100&page=${page}`,
+		{
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${config.githubToken}`,
+			},
+		}
+	);
+
+	let results = await res.json();
+
+	if (results.total_count > (page - 1) * 100 + results.items.length) {
+		results.items = results.items.concat((await getOwnerFiles(organization, page + 1)).items);
+	}
+
+	return results;
+}
