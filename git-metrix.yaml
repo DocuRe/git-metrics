@@ -9,7 +9,7 @@ items:
 - apiVersion: v1
   data:
     GIT_METRICS_CONFIG: |
-      {"repositories":["kubeflow/kfctl","kubeflow/kfp-tekton","kubeflow/kfserving","kubeflow/kubeflow","kubeflow/manifests","kubeflow/mpi-operator","kubeflow/testing"],"githubToken":"e91ba8ebb8ebcd638346a0ad0a88296cc61f4967"}
+      {"repositories":["kubeflow/kfctl","kubeflow/kfp-tekton","kubeflow/kfserving","kubeflow/kubeflow","kubeflow/manifests","kubeflow/mpi-operator","kubeflow/testing"],"githubToken":"   "}
   kind: ConfigMap
   metadata:
     name: git-metrix
