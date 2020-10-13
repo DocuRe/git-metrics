@@ -21,6 +21,8 @@ kind: Deployment
 metadata:
   name: git-metrix
   namespace: git-metrix
+  labels:
+    app: git-metrix
 spec:
   replicas: 1
   selector:
@@ -33,7 +35,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: 10.10.100.14:5000/git-metrics:1.1
+          image: 007ba7/git-metrics:1.1
           resources:
               requests:
                 cpu: 1
