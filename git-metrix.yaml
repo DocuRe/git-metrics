@@ -9,7 +9,7 @@ items:
 - apiVersion: v1
   data:
     GIT_METRICS_CONFIG: |
-      {"repositories":["kubeflow/kfctl","kubeflow/kfp-tekton","kubeflow/kfserving","kubeflow/kubeflow","kubeflow/manifests","kubeflow/mpi-operator","kubeflow/testing"],"githubToken":"   "}
+      {"repositories":["kubeflow/community","kubeflow/kfctl","kubeflow/kfp-tekton","kubeflow/kfserving","kubeflow/kubeflow","kubeflow/manifests","kubeflow/mpi-operator","kubeflow/pipelines","kubeflow/testing","kubeflow/website"],"githubToken":"   "}
   kind: ConfigMap
   metadata:
     name: git-metrix
@@ -24,7 +24,7 @@ metadata:
   labels:
     app: git-metrix
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: git-metrix
@@ -34,18 +34,20 @@ spec:
         app: git-metrix
     spec:
       containers:
-        - name: app
-          image: 007ba7/git-metrics:1.1
-          resources:
-              requests:
-                cpu: 1
-                memory: 1000Mi
-          ports:
-            - containerPort: 5000
-          envFrom:
-          - configMapRef:
-              name: git-metrix
-          imagePullPolicy: Always
+      - name: app
+        image: ghcr.io/jtfogarty/git-metrics:1.9
+        resources:
+            requests:
+              cpu: 1
+              memory: 1000Mi
+        ports:
+          - containerPort: 5000
+        envFrom:
+        - configMapRef:
+            name: git-metrix
+        imagePullPolicy: Always
+      imagePullSecrets:
+      - name: ghcr-config
 ---
 apiVersion: v1
 kind: Service

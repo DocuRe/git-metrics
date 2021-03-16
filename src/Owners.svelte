@@ -8,7 +8,7 @@
 	$: [organization, repository] = orgrepo.split('/');
 
 	function getRepositoryOwnerFilesFromResult(res, repository) {
-		console.log(res.items);
+		//console.log(res.items);
 
 		return res.items
 			.filter(({ repository: { name } }) => name === repository)
@@ -40,7 +40,7 @@
 					'https://github.com/',
 					'https://raw.githubusercontent.com/'
 				)
-				.replace('/blob/', '/')).then((r) => r.text()) then text}
+				.replace('/blob/', '/master/')).then((r) => r.text()) then text}
 			<pre>{text}</pre>
 		{/await}
 	{/each}
